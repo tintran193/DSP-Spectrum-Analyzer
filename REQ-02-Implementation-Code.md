@@ -183,9 +183,9 @@ Hiểu spectrum và tính đối xứng của phổ tín hiệu thực.
 
 #### Frequency resolution
 
-\[
+$$
 \Delta f = \frac{f_s}{N}
-\]
+$$
 
 ### Windowing
 
@@ -396,15 +396,15 @@ Người 2 chịu trách nhiệm **DSP core**:
 
 **DFT**
 
-\[
+$$
 X[k] = \sum_{n=0}^{N-1}x[n]e^{-j2\pi kn/N}
-\]
+$$
 
 **Twiddle factor**
 
-\[
+$$
 W_N^k=e^{-j2\pi k/N}
-\]
+$$
 
 **Radix-2 DIT**
 
@@ -428,15 +428,15 @@ Hiểu thứ tự input sau khi đảo bit chỉ mục.
 
 Nắm được ý nghĩa:
 
-\[
+$$
 O(N^2)
-\]
+$$
 
 cho DFT trực tiếp và:
 
-\[
+$$
 O(N\log_2N)
-\]
+$$
 
 cho FFT Radix-2.
 
@@ -618,29 +618,29 @@ Người 3 biến `X[k]` thành một **Spectrum Analyzer hoàn chỉnh**:
 
 **Magnitude**
 
-\[
+$$
 A[k] = |X[k]|
-\]
+$$
 
 **Frequency axis**
 
-\[
+$$
 f_k = \frac{kf_s}{N}
-\]
+$$
 
 **Spectrum một phía**
 
 Với tín hiệu thực, hiển thị:
 
-\[
+$$
 0\le f\le f_s/2
-\]
+$$
 
 **dB**
 
-\[
+$$
 X_{dB}[k] = 20\log_{10}(A[k]+\epsilon)
-\]
+$$
 
 **Peak detection**
 

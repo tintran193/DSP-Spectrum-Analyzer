@@ -39,9 +39,9 @@ flowchart TD
 
 Ví dụ người dùng tạo:
 
-\[
+$$
 x[n] = \sin(2\pi1000n/f_s) + 0.5\sin(2\pi3000n/f_s)
-\]
+$$
 
 thì chương trình phải hiển thị hai thành phần chính khoảng **1 kHz** và **3 kHz**.
 
@@ -92,17 +92,17 @@ Nhóm phải thực hiện ba phần liên kết với nhau:
 
 DTFT mô tả phổ của tín hiệu rời rạc theo tần số. Với tín hiệu thực, phổ biên độ có tính đối xứng, vì vậy khi hiển thị có thể tập trung vào miền:
 
-\[
+$$
 0 \le f \le f_s/2
-\]
+$$
 
 Trong project, DTFT **không phải thuật toán chạy chính**; nó là nền tảng lý thuyết để hiểu spectrum.
 
 ### 4.2. DFT — cơ sở tính toán phổ rời rạc
 
-\[
+$$
 X[k] = \sum_{n=0}^{N-1}x[n]e^{-j2\pi kn/N}
-\]
+$$
 
 DFT được dùng trong project để:
 
@@ -145,9 +145,9 @@ Bit-reversal là bước sắp xếp dữ liệu phù hợp với implementation
 
 Trước FFT:
 
-\[
+$$
 x_w[n] = x[n]w[n]
-\]
+$$
 
 Bắt buộc hỗ trợ:
 
@@ -159,9 +159,9 @@ Mục tiêu là nghiên cứu **spectral leakage** và sự đánh đổi với 
 
 ### 4.6. Frequency resolution
 
-\[
+$$
 \Delta f = \frac{f_s}{N}
-\]
+$$
 
 Phải có thí nghiệm thay đổi `N` để quan sát khả năng phân biệt hai tần số gần nhau.
 
@@ -391,9 +391,9 @@ Kết quả mong đợi:
 
 ### Test 02 — Multi-sine
 
-\[
+$$
 x(t)=\sin(2\pi1000t)+0.5\sin(2\pi3000t)
-\]
+$$
 
 Kết quả:
 
@@ -453,15 +453,15 @@ Biểu diễn `x[n]` hoặc frame đang phân tích theo thời gian.
 
 Biểu diễn:
 
-\[
+$$
 |X[k]|
-\]
+$$
 
 trên miền:
 
-\[
+$$
 0 \le f \le f_s/2
-\]
+$$
 
 ### 10.3. dB spectrum
 

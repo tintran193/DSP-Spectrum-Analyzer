@@ -125,3 +125,16 @@ The project is divided into three main areas:
 - ⚡ DFT / FFT processing
 - 📊 Spectrum analysis and visualization
 
+## Tool
+
+|Tool|Version|
+|---|---|
+|python|3.13.12|
+
+```py
+python --version
+```
+```py
+pip install numpy scipy matplotlib soundfile
+```
+

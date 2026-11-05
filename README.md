@@ -131,10 +131,29 @@ The project is divided into three main areas:
 |---|---|
 |python|3.13.12|
 
+### Check version
+
 ```py
 python --version
 ```
+
+### Install libraries
 ```py
-pip install numpy scipy matplotlib soundfile
+pip install numpy scipy matplotlib pytest soundfile
 ```
+
+### Run tests
+Run one test
+```py
+python -m pytest tests/test_dft.py -v
+```
+Run all tests
+```py
+python -m pytest tests/ -v
+```
+Run experiments
+```py
+python -m experiments.exp_benchmark
+```
+
 

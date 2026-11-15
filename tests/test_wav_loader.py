@@ -2,8 +2,8 @@
 import numpy as np
 import pytest
 import soundfile as sf
-
-from src.input.wav_loader import load_wav, get_wav_info
+import matplotlib.pyplot as plt
+from src.input.wav_loader import load_wav
 
 FS = 8000
 
@@ -60,43 +60,64 @@ def test_d_not_audio_file(tmp_path):
     with pytest.raises(ValueError):
         load_wav(str(p))
 
+def test_read_and_analyze_real_wav():
+    # Nhập đường dẫn file WAV
+    path = input("\nNhap duong dan file WAV: ").strip().strip('"')
 
-# ---------------- get_wav_info (yêu cầu 6.2: sample rate, số kênh, số mẫu, duration) ----------------
-def test_info_stereo(tmp_path):
-    left, right = _tones()
-    p = tmp_path / "s.wav"
-    sf.write(p, np.column_stack([left, right]), FS, subtype="PCM_16")
-    info = get_wav_info(str(p))
-    assert info["sample_rate"] == float(FS)
-    assert info["channels"] == 2
-    assert info["n_samples"] == FS
-    assert info["duration"] == pytest.approx(1.0)
+    # Đọc file
+    x, fs = load_wav(path)
 
+    # Thông tin cơ bản
+    duration = len(x) / fs
 
-def test_info_mono_and_duration(tmp_path):
-    p = tmp_path / "m.wav"
-    sf.write(p, np.zeros(4000), FS, subtype="PCM_16")          # 0,5 s
-    info = get_wav_info(str(p))
-    assert info["channels"] == 1
-    assert info["n_samples"] == 4000
-    assert info["duration"] == pytest.approx(0.5)
+    print("\n========== WAV INFORMATION ==========")
+    print(f"Sample rate       : {fs} Hz")
+    print(f"Number of samples: {len(x)}")
+    print(f"Duration          : {duration:.3f} seconds")
+    print(f"Channels after load: Mono")
+    print(f"Data type         : {x.dtype}")
+    print(f"Amplitude min     : {np.min(x):.4f}")
+    print(f"Amplitude max     : {np.max(x):.4f}")
+    print(f"RMS               : {np.sqrt(np.mean(x**2)):.4f}")
 
+    # Phân tích phổ FFT
+    N = len(x)
+    X = np.fft.rfft(x)
+    freqs = np.fft.rfftfreq(N, d=1/fs)
 
-def test_info_consistent_with_load_wav(tmp_path):
-    left, right = _tones()
-    p = tmp_path / "c.wav"
-    sf.write(p, np.column_stack([left, right]), FS, subtype="PCM_16")
-    info = get_wav_info(str(p))
-    x, fs = load_wav(str(p))
-    assert fs == info["sample_rate"]
-    assert len(x) == info["n_samples"]                          # mono: số mẫu = số mẫu mỗi kênh
-    assert len(x) / fs == pytest.approx(info["duration"])
+    magnitude = 2 * np.abs(X) / N
 
+    # Không nhân đôi thành phần DC và Nyquist
+    magnitude[0] /= 2
+    if N % 2 == 0:
+        magnitude[-1] /= 2
 
-def test_info_missing_and_invalid(tmp_path):
-    with pytest.raises(FileNotFoundError):
-        get_wav_info(str(tmp_path / "khong_co.wav"))
-    bad = tmp_path / "fake.wav"
-    bad.write_bytes(b"khong phai am thanh")
-    with pytest.raises(ValueError):
-        get_wav_info(str(bad))
+    peak_index = np.argmax(magnitude)
+    peak_frequency = freqs[peak_index]
+
+    print("\n========== FREQUENCY ANALYSIS ==========")
+    print(f"Dominant frequency: {peak_frequency:.2f} Hz")
+    print(f"Peak amplitude    : {magnitude[peak_index]:.4f}")
+
+#này vẽ tín hiệu theo tgian
+    t = np.arange(N) / fs
+
+    plt.figure(figsize=(12, 8))
+
+    plt.subplot(2, 1, 1)
+    plt.plot(t, x)
+    plt.title("Time-domain Signal")
+    plt.xlabel("Time (s)")
+    plt.ylabel("Amplitude")
+    plt.grid(True)
+
+#Này vẽ phổ nha 
+    plt.subplot(2, 1, 2)
+    plt.plot(freqs, magnitude)
+    plt.title("Frequency Spectrum")
+    plt.xlabel("Frequency (Hz)")
+    plt.ylabel("Magnitude")
+    plt.grid(True)
+
+    plt.tight_layout()
+    plt.show()

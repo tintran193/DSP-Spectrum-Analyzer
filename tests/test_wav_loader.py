@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 import soundfile as sf
 
-from src.input.wav_loader import load_wav
+from src.input.wav_loader import load_wav, get_wav_info
 
 FS = 8000
 
@@ -59,3 +59,44 @@ def test_d_not_audio_file(tmp_path):
     p.write_bytes(b"day khong phai file am thanh")
     with pytest.raises(ValueError):
         load_wav(str(p))
+
+
+# ---------------- get_wav_info (yêu cầu 6.2: sample rate, số kênh, số mẫu, duration) ----------------
+def test_info_stereo(tmp_path):
+    left, right = _tones()
+    p = tmp_path / "s.wav"
+    sf.write(p, np.column_stack([left, right]), FS, subtype="PCM_16")
+    info = get_wav_info(str(p))
+    assert info["sample_rate"] == float(FS)
+    assert info["channels"] == 2
+    assert info["n_samples"] == FS
+    assert info["duration"] == pytest.approx(1.0)
+
+
+def test_info_mono_and_duration(tmp_path):
+    p = tmp_path / "m.wav"
+    sf.write(p, np.zeros(4000), FS, subtype="PCM_16")          # 0,5 s
+    info = get_wav_info(str(p))
+    assert info["channels"] == 1
+    assert info["n_samples"] == 4000
+    assert info["duration"] == pytest.approx(0.5)
+
+
+def test_info_consistent_with_load_wav(tmp_path):
+    left, right = _tones()
+    p = tmp_path / "c.wav"
+    sf.write(p, np.column_stack([left, right]), FS, subtype="PCM_16")
+    info = get_wav_info(str(p))
+    x, fs = load_wav(str(p))
+    assert fs == info["sample_rate"]
+    assert len(x) == info["n_samples"]                          # mono: số mẫu = số mẫu mỗi kênh
+    assert len(x) / fs == pytest.approx(info["duration"])
+
+
+def test_info_missing_and_invalid(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        get_wav_info(str(tmp_path / "khong_co.wav"))
+    bad = tmp_path / "fake.wav"
+    bad.write_bytes(b"khong phai am thanh")
+    with pytest.raises(ValueError):
+        get_wav_info(str(bad))

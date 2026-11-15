@@ -103,3 +103,55 @@ def test_c_odd_harmonics_only():
 def test_c_invalid_frequency():
     with pytest.raises(ValueError):
         generate_square(4000, 1.0, 8000.0, 1.0)
+
+
+
+def test_n_samples_instead_of_duration_sine():
+    x, fs = generate_sine(1000, 1.0, 0.0, FS, n_samples=1234)
+    assert len(x) == 1234 and fs == FS
+    y, _ = generate_sine(1000, 1.0, 0.0, FS, 1.0)
+    assert np.allclose(x, y[:1234])                      # cùng tín hiệu, chỉ khác độ dài
+
+
+def test_n_samples_multi_sine_and_square():
+    x, _ = generate_multi_sine([1000, 3000], [1.0, 0.5], [0.0, 0.0], FS, n_samples=1000)
+    assert len(x) == 1000
+    s, _ = generate_square(1000, 1.0, FS, n_samples=777)
+    assert len(s) == 777 and set(np.unique(s)) == {-1.0, 1.0}
+
+
+def test_duration_positional_still_works():
+    x, _ = generate_sine(1000, 1.0, 0.0, FS, 0.25)       # đúng API 5.3
+    assert len(x) == 2000
+
+
+@pytest.mark.parametrize("kwargs", [
+    dict(),                                  # không nhập gì
+    dict(duration=1.0, n_samples=100),       # nhập cả hai
+    dict(n_samples=0),
+    dict(n_samples=-5),
+    dict(n_samples=2.5),
+    dict(n_samples=True),
+])
+def test_length_arguments_invalid(kwargs):
+    with pytest.raises(ValueError):
+        generate_sine(1000, 1.0, 0.0, FS, **kwargs)
+
+
+def test_b_three_components_spectrum():
+    
+    x, _ = generate_multi_sine([500, 1500, 2500], [1.0, 0.5, 0.25], [0.0, 0.0, 0.0], FS, 1.0)
+    X = amp_spectrum(x)
+    assert X[500] == pytest.approx(1.0, abs=1e-9)
+    assert X[1500] == pytest.approx(0.5, abs=1e-9)
+    assert X[2500] == pytest.approx(0.25, abs=1e-9)
+    mask = np.ones(len(X), dtype=bool)
+    mask[[500, 1500, 2500]] = False
+    assert X[mask].max() < 1e-9
+
+
+def test_b_n_samples_and_phase():
+    x, _ = generate_multi_sine([1000, 3000], [1.0, 0.5], [np.pi / 2, 0.0], FS, n_samples=64)
+    s1, _ = generate_sine(1000, 1.0, np.pi / 2, FS, n_samples=64)
+    s2, _ = generate_sine(3000, 0.5, 0.0, FS, n_samples=64)
+    assert len(x) == 64 and np.allclose(x, s1 + s2)

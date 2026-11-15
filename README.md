@@ -155,5 +155,9 @@ Run experiments
 ```py
 python -m experiments.exp_benchmark
 ```
+### Run program
+```py
+python run.py
+```
 
 

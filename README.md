@@ -145,11 +145,11 @@ pip install numpy scipy matplotlib pytest soundfile
 ### Run tests
 Run one test
 ```py
-python -m pytest tests/test_dft.py -v
+python -m pytest tests/test_dft.py -v -s
 ```
 Run all tests
 ```py
-python -m pytest tests/ -v
+python -m pytest tests/ -v -s
 ```
 Run experiments
 ```py

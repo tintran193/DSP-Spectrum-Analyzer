@@ -37,7 +37,9 @@ class SpectrumAnalyzerGUI:
             "Digital Spectrum Analyzer"
         )
 
-        self.root.geometry("1350x900")
+        # Keep the window within a typical desktop screen height.
+        self.root.geometry("1350x780")
+        self.root.minsize(1100, 650)
 
         self.analyzer = SpectrumAnalyzer()
 
@@ -94,31 +96,26 @@ class SpectrumAnalyzerGUI:
 
     def _create_gui(self):
 
-        main_frame = ttk.Frame(
-            self.root,
-            padding=10
-        )
+        main_frame = ttk.Frame(self.root, padding=10)
+        main_frame.pack(fill="both", expand=True)
 
-        main_frame.pack(
-            fill="both",
-            expand=True
-        )
+        # Use grid for the three main vertical regions so the peak table
+        # always reserves its own space below the plots.
+        main_frame.columnconfigure(0, weight=1)
+        main_frame.rowconfigure(0, weight=0)  # Header
+        main_frame.rowconfigure(1, weight=1)  # Controls + plots
+        main_frame.rowconfigure(2, weight=0)  # Peak table
 
         title = ttk.Label(
             main_frame,
             text="DIGITAL SPECTRUM ANALYZER",
             font=("Arial", 18, "bold")
         )
-
-        title.pack(pady=10)
+        title.grid(row=0, column=0, sticky="ew", pady=(0, 8))
 
         # Main content.
         content_frame = ttk.Frame(main_frame)
-
-        content_frame.pack(
-            fill="both",
-            expand=True
-        )
+        content_frame.grid(row=1, column=0, sticky="nsew")
 
         # Left side: controls.
         control_frame = ttk.LabelFrame(
@@ -126,28 +123,18 @@ class SpectrumAnalyzerGUI:
             text="Input and FFT Settings",
             padding=10
         )
-
-        control_frame.pack(
-            side="left",
-            fill="y",
-            padx=5
-        )
-
+        control_frame.pack(side="left", fill="y", padx=5)
         self._create_controls(control_frame)
 
         # Right side: plots.
         display_frame = ttk.Frame(content_frame)
-
         display_frame.pack(
-            side="right",
-            fill="both",
-            expand=True,
-            padx=5
+            side="right", fill="both", expand=True, padx=5
         )
-
         self._create_plots(display_frame)
 
-        # Bottom: peak table.
+        # Bottom: peak table. It has a reserved row and cannot be pushed
+        # below the visible window by the expanding plot area.
         self._create_peak_table(main_frame)
 
     # =========================================
@@ -349,8 +336,10 @@ class SpectrumAnalyzerGUI:
 
     def _create_plots(self, parent):
 
+        # A less tall initial figure leaves enough room for Peak Information.
+        # The Tk canvas will still expand/shrink with its display frame.
         self.figure = Figure(
-            figsize=(9, 8),
+            figsize=(9, 6),
             dpi=100
         )
 
@@ -380,64 +369,49 @@ class SpectrumAnalyzerGUI:
 
         table_frame = ttk.LabelFrame(
             parent,
-            text="Detected Peaks",
+            text="Peak Information",
             padding=5
         )
-
-        table_frame.pack(
-            fill="x",
-            pady=10
+        table_frame.grid(
+            row=2, column=0,
+            sticky="ew",
+            pady=(6, 0)
         )
+        table_frame.columnconfigure(0, weight=1)
+        table_frame.rowconfigure(0, weight=1)
 
-        columns = (
-            "frequency",
-            "magnitude",
-            "db"
-        )
+        columns = ("frequency", "magnitude", "db")
 
         self.peak_table = ttk.Treeview(
             table_frame,
             columns=columns,
             show="headings",
-            height=5
+            height=4
         )
 
-        self.peak_table.heading(
-            "frequency",
-            text="Frequency (Hz)"
-        )
-
-        self.peak_table.heading(
-            "magnitude",
-            text="Magnitude"
-        )
-
-        self.peak_table.heading(
-            "db",
-            text="Magnitude (dB)"
-        )
+        self.peak_table.heading("frequency", text="Frequency (Hz)")
+        self.peak_table.heading("magnitude", text="Magnitude")
+        self.peak_table.heading("db", text="Magnitude (dB)")
 
         self.peak_table.column(
-            "frequency",
-            width=180,
-            anchor="center"
+            "frequency", width=180, anchor="center", stretch=True
         )
-
         self.peak_table.column(
-            "magnitude",
-            width=180,
-            anchor="center"
+            "magnitude", width=180, anchor="center", stretch=True
         )
-
         self.peak_table.column(
-            "db",
-            width=180,
-            anchor="center"
+            "db", width=180, anchor="center", stretch=True
         )
 
-        self.peak_table.pack(
-            fill="x"
+        scrollbar = ttk.Scrollbar(
+            table_frame,
+            orient="vertical",
+            command=self.peak_table.yview
         )
+        self.peak_table.configure(yscrollcommand=scrollbar.set)
+
+        self.peak_table.grid(row=0, column=0, sticky="ew")
+        scrollbar.grid(row=0, column=1, sticky="ns")
 
     # =========================================
     # Load WAV

@@ -1421,6 +1421,7 @@ def test_t07_wav_integration():
         # -------------------------------------------------
         # Step 5: Print test results
         # -------------------------------------------------
+        print("\n========== T07: WAV INTEGRATION ==========")
 
         print(f"Sampling Frequency: {fs} Hz")
         print(f"Number of Samples: {len(x)}")

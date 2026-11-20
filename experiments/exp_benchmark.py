@@ -139,6 +139,30 @@ def main() -> None:
     plt.savefig(FIGURE_DIR / "benchmark.png", dpi=200)
     plt.close()
 
+# Execution-time chart. Log scales make the three curves easier to compare.
+    plt.figure(figsize=(9, 6))
+    plt.plot(
+        sizes,
+        [row["DFT_time_ms"] for row in benchmark_rows],
+        marker="o",
+        label="Direct DFT",
+    )
+    plt.plot(
+        sizes,
+        [row["Custom_FFT_time_ms"] for row in benchmark_rows],
+        marker="o",
+        label="Custom Radix-2 FFT",
+    )
+
+    plt.xlabel("Number of samples (N)")
+    plt.ylabel("Execution time (ms)")
+    plt.title("Execution Time: Direct DFT vs Custom FFT")
+    plt.grid(True, which="both", linestyle=":", alpha=0.7)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(FIGURE_DIR / "benchmark2.png", dpi=200)
+    plt.close()    
+
     # Accuracy chart. The floor is only for plotting on a logarithmic axis;
     # CSV files retain the actual measured error values.
     dft_fft_errors = np.array(

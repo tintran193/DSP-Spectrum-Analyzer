@@ -4,7 +4,8 @@ from src.dsp.preprocessing import extract_frame
 
 from src.dsp.window import (
     get_window,
-    apply_window
+    apply_window,
+    coherent_gain
 )
 
 from src.dsp.fft import fft
@@ -161,10 +162,17 @@ class SpectrumAnalyzer:
         # Step 7: Magnitude spectrum
         # ---------------------------------------
 
+        # Calculate coherent gain
+        cg = coherent_gain(window)
+
+        # Calculate one-sided magnitude spectrum
         magnitude = one_sided_magnitude(
             X,
             fft_size
         )
+
+        # Correct amplitude attenuation caused by windowing
+        magnitude = magnitude / cg
 
         # ---------------------------------------
         # Step 8: Convert to dB
